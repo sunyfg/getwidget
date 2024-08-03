@@ -40,6 +40,7 @@ class GFTabBar extends StatefulWidget {
     this.mouseCursor,
     this.dividerColor,
     this.dividerHeight,
+    this.splashFactory,
   })  : assert(length != null && length >= 0),
         super(key: key);
 
@@ -258,6 +259,28 @@ class GFTabBar extends StatefulWidget {
   /// Otherwise divider will not be drawn.
   final double? dividerHeight;
 
+  /// Creates the tab bar's [InkWell] splash factory, which defines
+  /// the appearance of "ink" splashes that occur in response to taps.
+  ///
+  /// Use [NoSplash.splashFactory] to defeat ink splash rendering. For example
+  /// to defeat both the splash and the hover/pressed overlay, but not the
+  /// keyboard focused overlay:
+  ///
+  /// ```dart
+  /// TabBar(
+  ///   splashFactory: NoSplash.splashFactory,
+  ///   overlayColor: MaterialStateProperty.resolveWith<Color?>(
+  ///     (Set<MaterialState> states) {
+  ///       return states.contains(MaterialState.focused) ? null : Colors.transparent;
+  ///     },
+  ///   ),
+  ///   tabs: const <Widget>[
+  ///     // ...
+  ///   ],
+  /// )
+  /// ```
+  final InteractiveInkFeatureFactory? splashFactory;
+
   /// This widget's selection and animation state.
   ///
   /// If [TabController] is not provided, then the value of [DefaultTabController.of]
@@ -328,12 +351,13 @@ class _GFTabBarState extends State<GFTabBar> {
               onTap: widget.onTap,
               physics: widget.physics,
               dragStartBehavior: dragStartBehavior,
-              splashBorderRadius: widget.splashBorderRadius,
               tabAlignment: widget.tabAlignment,
               overlayColor: widget.overlayColor,
               mouseCursor: widget.mouseCursor,
               dividerColor: widget.dividerColor,
               dividerHeight: widget.dividerHeight,
+              splashFactory: widget.splashFactory,
+              splashBorderRadius: widget.splashBorderRadius,
               tabs: widget.tabs,
             ),
           ),
