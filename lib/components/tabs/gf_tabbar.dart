@@ -30,6 +30,16 @@ class GFTabBar extends StatefulWidget {
     this.unselectedLabelStyle,
     this.shape,
     this.width,
+    this.enableFeedback,
+    this.splashBorderRadius,
+    this.padding,
+    this.physics,
+    this.onTap,
+    this.tabAlignment,
+    this.overlayColor,
+    this.mouseCursor,
+    this.dividerColor,
+    this.dividerHeight,
   })  : assert(length != null && length >= 0),
         super(key: key);
 
@@ -149,6 +159,105 @@ class GFTabBar extends StatefulWidget {
   /// share of the available space.
   final bool isScrollable;
 
+  /// The amount of space by which to inset the tab bar.
+  ///
+  /// When [isScrollable] is false, this will yield the same result as if [TabBar] was wrapped
+  /// in a [Padding] widget. When [isScrollable] is true, the scrollable itself is inset,
+  /// allowing the padding to scroll with the tab bar, rather than enclosing it.
+  final EdgeInsetsGeometry? padding;
+
+  /// Whether detected gestures should provide acoustic and/or haptic feedback.
+  ///
+  /// For example, on Android a tap will produce a clicking sound and a long-press
+  /// will produce a short vibration, when feedback is enabled.
+  ///
+  /// Defaults to true.
+  final bool? enableFeedback;
+
+  /// Defines the clipping radius of splashes that extend outside the bounds of the tab.
+  ///
+  /// This can be useful to match the [BoxDecoration.borderRadius] provided as [indicator].
+  ///
+  /// ```dart
+  /// TabBar(
+  ///   indicator: BoxDecoration(
+  ///     borderRadius: BorderRadius.circular(40),
+  ///   ),
+  ///   splashBorderRadius: BorderRadius.circular(40),
+  ///   tabs: const <Widget>[
+  ///     // ...
+  ///   ],
+  /// )
+  /// ```
+  ///
+  /// If this property is null, it is interpreted as [BorderRadius.zero].
+  final BorderRadius? splashBorderRadius;
+
+  /// Specifies the horizontal alignment of the tabs within a [TabBar].
+  ///
+  /// If [TabBar.isScrollable] is false, only [TabAlignment.fill] and
+  /// [TabAlignment.center] are supported. Otherwise an exception is thrown.
+  ///
+  /// If [TabBar.isScrollable] is true, only [TabAlignment.start], [TabAlignment.startOffset],
+  /// and [TabAlignment.center] are supported. Otherwise an exception is thrown.
+  ///
+  /// If this is null, then the value of [TabBarTheme.tabAlignment] is used.
+  ///
+  /// If [TabBarTheme.tabAlignment] is null and [ThemeData.useMaterial3] is true,
+  /// then [TabAlignment.startOffset] is used if [isScrollable] is true,
+  /// otherwise [TabAlignment.fill] is used.
+  ///
+  /// If [TabBarTheme.tabAlignment] is null and [ThemeData.useMaterial3] is false,
+  /// then [TabAlignment.center] is used if [isScrollable] is true,
+  /// otherwise [TabAlignment.fill] is used.
+  final TabAlignment? tabAlignment;
+
+  /// Defines the ink response focus, hover, and splash colors.
+  ///
+  /// If non-null, it is resolved against one of [MaterialState.focused],
+  /// [MaterialState.hovered], and [MaterialState.pressed].
+  ///
+  /// [MaterialState.pressed] triggers a ripple (an ink splash), per
+  /// the current Material Design spec.
+  ///
+  /// If the overlay color is null or resolves to null, then the default values
+  /// for [InkResponse.focusColor], [InkResponse.hoverColor], [InkResponse.splashColor],
+  /// and [InkResponse.highlightColor] will be used instead.
+  final MaterialStateProperty<Color?>? overlayColor;
+
+  /// {@template flutter.material.tabs.mouseCursor}
+  /// The cursor for a mouse pointer when it enters or is hovering over the
+  /// individual tab widgets.
+  ///
+  /// If [mouseCursor] is a [MaterialStateProperty<MouseCursor>],
+  /// [MaterialStateProperty.resolve] is used for the following [MaterialState]s:
+  ///
+  ///  * [MaterialState.selected].
+  /// {@endtemplate}
+  ///
+  /// If null, then the value of [TabBarTheme.mouseCursor] is used. If
+  /// that is also null, then [MaterialStateMouseCursor.clickable] is used.
+  ///
+  /// See also:
+  ///
+  ///  * [MaterialStateMouseCursor], which can be used to create a [MouseCursor]
+  ///    that is also a [MaterialStateProperty<MouseCursor>].
+  final MouseCursor? mouseCursor;
+
+  /// The color of the divider.
+  ///
+  /// If null and [ThemeData.useMaterial3] is true, [TabBarTheme.dividerColor]
+  /// color is used. If that is null and [ThemeData.useMaterial3] is true,
+  /// [ColorScheme.surfaceVariant] will be used, otherwise divider will not be drawn.
+  final Color? dividerColor;
+
+  /// The height of the divider.
+  ///
+  /// If null and [ThemeData.useMaterial3] is true, [TabBarTheme.dividerHeight] is used.
+  /// If that is also null and [ThemeData.useMaterial3] is true, 1.0 will be used.
+  /// Otherwise divider will not be drawn.
+  final double? dividerHeight;
+
   /// This widget's selection and animation state.
   ///
   /// If [TabController] is not provided, then the value of [DefaultTabController.of]
@@ -161,6 +270,25 @@ class GFTabBar extends StatefulWidget {
   // Width of TabBar.
   // If this property is null, TabBar width is full screen
   final double? width;
+
+  /// How the [TabBar]'s scroll view should respond to user input.
+  ///
+  /// For example, determines how the scroll view continues to animate after the
+  /// user stops dragging the scroll view.
+  ///
+  /// Defaults to matching platform conventions.
+  final ScrollPhysics? physics;
+
+  /// An optional callback that's called when the [TabBar] is tapped.
+  ///
+  /// The callback is applied to the index of the tab where the tap occurred.
+  ///
+  /// This callback has no effect on the default handling of taps. It's for
+  /// applications that want to do a little extra work when a tab is tapped,
+  /// even if the tap doesn't change the TabController's index. TabBar [onTap]
+  /// callbacks should not make changes to the TabController since that would
+  /// interfere with the default tap handler.
+  final ValueChanged<int>? onTap;
 
   @override
   _GFTabBarState createState() => _GFTabBarState();
@@ -195,6 +323,17 @@ class _GFTabBarState extends State<GFTabBar> {
               indicator: widget.indicator,
               indicatorPadding: widget.indicatorPadding,
               indicatorWeight: widget.indicatorWeight,
+              enableFeedback: widget.enableFeedback,
+              padding: widget.padding,
+              onTap: widget.onTap,
+              physics: widget.physics,
+              dragStartBehavior: dragStartBehavior,
+              splashBorderRadius: widget.splashBorderRadius,
+              tabAlignment: widget.tabAlignment,
+              overlayColor: widget.overlayColor,
+              mouseCursor: widget.mouseCursor,
+              dividerColor: widget.dividerColor,
+              dividerHeight: widget.dividerHeight,
               tabs: widget.tabs,
             ),
           ),
