@@ -41,6 +41,7 @@ class GFTabBar extends StatefulWidget {
     this.dividerColor,
     this.dividerHeight,
     this.splashFactory,
+    this.borderTop,
   })  : assert(length != null && length >= 0),
         super(key: key);
 
@@ -302,6 +303,8 @@ class GFTabBar extends StatefulWidget {
   /// Defaults to matching platform conventions.
   final ScrollPhysics? physics;
 
+  final BorderSide? borderTop;
+
   /// An optional callback that's called when the [TabBar] is tapped.
   ///
   /// The callback is applied to the index of the tab where the tap occurred.
@@ -330,6 +333,9 @@ class _GFTabBarState extends State<GFTabBar> {
           width: widget.width ?? MediaQuery.of(context).size.width,
           height:
               widget.tabBarHeight ?? MediaQuery.of(context).size.height * 0.1,
+          decoration: BoxDecoration(
+            border: Border(top: widget.borderTop ?? BorderSide.none),
+          ),
           child: Material(
             shape: widget.shape,
             type: MaterialType.button,
